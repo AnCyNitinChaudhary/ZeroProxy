@@ -18,7 +18,7 @@ const FormData = require('form-data');
 app.use(express.json());
 
 
-app.get('/home', (req, res)=>{
+app.get('/', (req, res)=>{
     res.sendFile(__dirname + '/homePage.html');
 })
 
@@ -60,7 +60,7 @@ app.post('/api/random', (req, res) => {
 
 
 
-app.get('/home/teacher', (req, res) => {
+app.get('/teacher', (req, res) => {
     function generateRandomNumber() {
         const min = 100;
         const max = 999;
@@ -114,14 +114,12 @@ app.get('/api/coordinates', (req, res) => {
 
 
 //by nitin
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html');    
-});
+
 app.get('/admin', (req, res) => {
     res.sendFile(__dirname + '/adminPage.html')
 });
 
-app.get('/home/student', (req, res) => {
+app.get('/student', (req, res) => {
     res.sendFile(__dirname + '/i.html');
   
 });
@@ -132,7 +130,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use(express.static('public'));
-app.post('/home/teacher', (req, res) => {
+app.post('/teacher', (req, res) => {
     const data = req.body;
     
    
@@ -144,7 +142,7 @@ app.post('/home/teacher', (req, res) => {
 });
 
 
-app.post('/home/student', (req, res) => {
+app.post('/student', (req, res) => {
     const enteredCode = req.body.code;
 
 

@@ -5,14 +5,14 @@ const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
-app.get('/home', (req, res) => {
+app.get('/', (req, res) => {
     res.sendFile(__dirname + '/i.html');
 });
-app.post('/home', (req, res) => {
+app.post('/', (req, res) => {
     const enteredCode = req.body.code;
 
     console.log("entered code is: ",enteredCode);
-    if(enteredCode == 234) res.redirect(`/home/${enteredCode}`);
+    if(enteredCode == 234) res.redirect(`/${enteredCode}`);
     else {res.send('code not matched');}
 });
 // app.listen(port, () => {
