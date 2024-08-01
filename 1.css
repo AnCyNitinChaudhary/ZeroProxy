@@ -1,0 +1,177 @@
+@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro');
+body {
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-image: url('pexels-eva-bronzini-7629493.jpg'); 
+  background-size: cover;
+  background-position: center;
+}
+
+.container {
+  width: 90%;
+  max-width: 800px;
+  margin: auto;
+  text-align: center;
+  color: #fff;
+}
+
+.container h1 {
+  font-size: 6vw;
+  margin-top: 5vw;
+  margin-bottom: 10px;
+}
+
+.anta-regular {
+  font-family: "Anta", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+p {
+  border-right: solid 3px rgba(0,255,0,.75);
+  white-space: nowrap;
+  overflow: hidden;    
+  font-family: 'Source Code Pro', monospace;  
+  font-size: 20px;
+}
+
+/* Animation */
+p {
+  animation: animated-text 3s steps(29,end) 1s 1 normal both,
+             animated-cursor 600ms steps(29,end) infinite;
+}
+
+/* text animation */
+@keyframes animated-text{
+  from{width: 0;}
+  to{width: 472px;}
+}
+
+/* cursor animations */
+@keyframes animated-cursor{
+  from{border-right-color: rgba(0,255,0,.75);}
+  to{border-right-color: transparent;}
+}
+
+.navbar {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  width: 120px; /* Increased the size of the logo */
+  cursor: pointer;
+}
+
+.navbar ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.navbar ul li {
+  position: relative;
+}
+
+.navbar ul li a {
+  text-decoration: none;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.navbar ul li::after {
+  content: '';
+  height: 3px;
+  width: 0;
+  background: #009688;
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+  transition: 0.5s;
+}
+
+.navbar ul li:hover::after {
+  width: 100%;
+}
+
+.navbar ul li:hover a {
+  color: rgba(95, 32, 189, 0.668);
+}
+
+p {
+  margin: 20px auto;
+  font-weight: 100;
+  line-height: 25px;
+}
+
+button {
+  width: 100%;
+  max-width: 200px;
+  padding: 15px 0;
+  text-align: center;
+  margin: 20px 40px 30px; /* Increased the gap between buttons */
+  border-radius: 35px;
+  font-weight: bold;
+  border: 3px solid #62d3e1;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+span {
+  background: #009688;
+  height: 100%;
+  width: 0;
+  border-radius: 25px;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: -1;
+  transition: 0.5s;
+}
+
+button:hover span {
+  width: 100%;
+}
+
+button:hover {
+  border: none;
+}
+
+/* Media Queries for responsiveness */
+
+@media screen and (max-width: 768px) {
+  .container h1 {
+    font-size: 8vw;
+    margin-top: 8vw;
+  }
+
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .logo {
+    width: 80px;
+  }
+
+  .navbar ul li::after {
+    bottom: -5px;
+  }
+
+  button {
+    max-width: none;
+    margin: 10px 0;
+  }
+}

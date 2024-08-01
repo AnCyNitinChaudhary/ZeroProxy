@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+</head>
+<body>
+    <h1>Admin Page</h1>
+
+    <button id="generateCodeButton">Generate Code for New Class</button>
+    
+    <div id="generatedCode"></div>
+
+    <script>
+        document.getElementById('generateCodeButton').addEventListener('click', () => {
+            fetch('http://localhost:5000/generateCode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('generatedCode').innerText = `Generated Code: ${data.code}`;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

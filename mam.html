@@ -1,0 +1,309 @@
+
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Anta&display=swap" rel="stylesheet">
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Teacher's Portal</title>
+     <style>
+         body {
+             font-family: Arial, sans-serif;
+             margin: 0;
+             padding: 0;
+             color: #fff;
+             background-image: url('/images/pexels-eva-bronzini-7629493.jpg'); 
+             background-size: cover;
+             background-position: center;
+             
+         }
+         .container {
+     max-width: 800px;
+     margin: 0 auto;
+     padding: 20px;
+     background-color: rgba(255, 255, 255, 0.1); 
+     border-radius: 8px;
+         background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.1));
+         backdrop-filter: blur(8px);
+         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 0 0 4px rgba(255, 255, 255, 0.1) inset; /* Box shadow for depth */
+ }
+ .container::before {
+         content: '';
+         position: absolute;
+         top: 0;
+         left: 0;
+         right: 0;
+         bottom: 0;
+         background: inherit;
+         border-radius: inherit;
+         backdrop-filter: blur(16px);
+         z-index: -1;
+     }
+         h1 {
+             text-align: center;
+             margin-bottom: 20px;
+         }
+         .anta-regular {
+   font-family: "Anta", sans-serif;
+   font-weight: 400;
+   font-style: normal;
+ }
+ button {
+     background-color: transparent;
+     color: #fff;
+     border: 2px solid #fff; 
+     padding: 10px 20px;
+     cursor: pointer;
+     border-radius: 25px;
+     transition: background-color 0.3s ease, border-color 0.3s ease;
+     font-size: 16px; 
+ }
+ .t{
+    display: flex;
+    gap: 2rem;
+ }
+ .glass-effect {
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+    transition: background 0.3s ease;
+    color: white;
+}
+
+.glass-effect::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.glass-effect:focus {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+ 
+ button:hover {
+     background-color: rgba(255, 255, 255, 0.3);
+     border-color: #2980b9;
+ }
+         table {
+             width: 100%;
+             border-collapse: collapse;
+             margin-top: 20px;
+         }
+         th, td {
+             border: 1px solid #ddd;
+             padding: 8px;
+             text-align: left;
+         }
+         th {
+             background-color: #000000;
+         }
+         #currentDateTime {
+    font-family: "anta-regular", sans-serif;
+    font-size: 18px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+    color: white;
+    text-align: center;
+}
+
+#currentDateTime::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+    }
+}
+
+     </style>
+ </head>
+ <body>
+     <div class="container">
+         <h1 class="anta-regular">Teacher's Portal</h1>
+         <div class="t">
+         <button id="sendLocationButton">Generate Random Number</button>
+         <button id="addRowButton">Mark Manually</button>
+         
+
+        </div>
+         <p id="random-number"></p>
+         <div id="dataDisplay"></div>
+         <p id="currentDateTime">Current Date and Time</p>
+
+         <table id="data-table">
+             <thead>
+                 <tr>
+                     <th>Enrollment Number</th>
+                     <th>Attendance</th>
+                     
+                 </tr>
+             </thead>
+             <tbody id="table-body">
+             </tbody>
+         </table>
+        
+     </div>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+     <script>
+         const socket = io();
+ 
+         socket.on('connect', () => {
+             console.log('Connected to server');
+         });
+ 
+         socket.on('dataUpdate', (data) => {
+             console.log(data);
+             displayData(data);
+         });
+ 
+         function displayData(data) {
+             const tableBody = document.getElementById('table-body');
+ 
+             function isValidEnrollment(enrollment) {
+                 return /^\d{10}$/.test(enrollment);
+             }
+             if (isValidEnrollment(data.enrollment) && (data.dist <= 1000000)) {
+                 const existingEnrollments = Array.from(tableBody.querySelectorAll('tr td:first-child')).map(cell => cell.textContent);
+                 if (!existingEnrollments.includes(data.enrollment)) {
+                     const newRow = document.createElement('tr');
+                     const enrollmentCell = document.createElement('td');
+                     enrollmentCell.textContent = data.enrollment;
+                     newRow.appendChild(enrollmentCell);
+ 
+                     const attendanceCell = document.createElement('td');
+         
+                     attendanceCell.textContent = "Present";
+                     attendanceCell.style.color = "green";
+                     newRow.appendChild(attendanceCell);
+                     tableBody.appendChild(newRow);
+ 
+                 }
+             }
+             else{
+                 const newRow = document.createElement('tr');
+                     const enrollmentCell = document.createElement('td');
+                     enrollmentCell.textContent = data.enrollment;
+                     newRow.appendChild(enrollmentCell);
+ 
+                     const attendanceCell = document.createElement('td');
+         
+                     attendanceCell.textContent = "Absent";
+                     attendanceCell.style.color = "red";
+                     newRow.appendChild(attendanceCell);
+                     tableBody.appendChild(newRow);
+             }
+     
+         }
+         document.getElementById("addRowButton").addEventListener("click", function() {
+    var tableBody = document.getElementById("table-body");
+    var newRow = document.createElement("tr");
+
+    var enrollmentCell = document.createElement("td");
+    var enrollmentInput = document.createElement("input");
+    enrollmentInput.type = "text"; 
+    enrollmentInput.classList.add("glass-effect");
+    enrollmentCell.appendChild(enrollmentInput);
+    newRow.appendChild(enrollmentCell);
+
+    var attendanceCell = document.createElement("td");
+    var attendanceInput = document.createElement("input");
+    attendanceInput.type = "checkbox";
+    attendanceCell.appendChild(attendanceInput);
+    newRow.appendChild(attendanceCell);
+
+    tableBody.appendChild(newRow);
+    enrollmentInput.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        var text = enrollmentInput.value;
+        var cellIndex = Array.from(newRow.children).indexOf(enrollmentCell);
+        var rowIndex = Array.from(tableBody.children).indexOf(newRow);
+        saveTextToTable(rowIndex, cellIndex, text);
+        enrollmentCell.removeChild(enrollmentInput);
+        attendanceInput.checked = true;
+    } else {
+        
+        var regex = /^[0-9]$/; 
+        if (!regex.test(event.key)) {
+            event.preventDefault(); 
+        }
+    }
+});
+});
+var dateTimeElement = document.getElementById("currentDateTime");
+function updateDateTime() {
+    var currentDate = new Date();
+    var dateString = currentDate.toLocaleDateString();
+    var timeString = currentDate.toLocaleTimeString();
+    var dateTimeString = "CNIOT " + dateString + " Current Time: " + timeString;
+    dateTimeElement.textContent = dateTimeString;
+}
+updateDateTime();
+
+setInterval(updateDateTime, 1000);
+
+
+function saveTextToTable(rowIndex, cellIndex, text) {
+    var table = document.getElementById("data-table");
+    table.rows[rowIndex + 1].cells[cellIndex].textContent = text;
+}
+
+ 
+         function sendRandomNumberToBackend(randomNumber) {
+             fetch('/api/random', {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                 },
+                 body: JSON.stringify({ randomNumber }),
+             })
+             .then(response => {
+                 if (!response.ok) {
+                     throw new Error('Failed to send random number to the backend');
+                 }
+                 return response.json();
+             })
+             .then(data => {
+                 console.log('Response from backend:', data);
+             })
+             .catch(error => {
+                 console.error('Error:', error);
+             });
+         }
+ 
+         document.getElementById('sendLocationButton').addEventListener('click', function () {
+             generateAndSendRandomNumber();
+         });
+ 
+         function generateAndSendRandomNumber() {
+     const randomNumber = Math.floor(Math.random() * 900) + 100; // Generates a random number between 100 and 999
+     document.getElementById('random-number').innerText = `Random Number: ${randomNumber}`;
+     console.log(randomNumber);
+     sendRandomNumberToBackend(randomNumber);
+ }
+     </script>
+ </body>
+ </html>

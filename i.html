@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Home Page</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 1.5em;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('/images/pexels-eva-bronzini-7629493.jpg'); 
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3); 
+            max-width: 80%; 
+        }
+        .anta-regular {
+  font-family: "Anta", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 0.8em;
+            width: 100%;
+            display: block;
+            margin-bottom: 10px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1); 
+            border-bottom: 2px solid rgba(255, 255, 255, 0.5); 
+            color: white; /
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 0.8em;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            cursor: pointer;
+            margin: 0 auto;
+            border-radius: 5px; 
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+            input {
+                width: auto; 
+            }
+        }
+    </style>
+    
+</head>
+<body>
+    <h3>Student Home Page</h3>
+    
+    <form action="/home/student" method="post">
+        <label for="code">Enter Class Code:</label>
+        <input type="text" id="code" name="code" required placeholder="Class Code">
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

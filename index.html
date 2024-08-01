@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocation Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #2c3e50;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #34495e;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        input[type="number"] {
+            padding: 10px;
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        #locationData {
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Geolocation Information</h1>
+        <label for="enrollmentNumber">Enrollment Number:</label>
+        <input type="number" id="enrollmentNumber">
+        
+        <div id="locationData">
+            <p><strong>Latitude:</strong> <span id="lat"></span></p>
+            <p><strong>Longitude:</strong> <span id="lon"></span></p>
+            <p><strong>Altitude:</strong> <span id="alt"></span> meters</p>
+        </div>
+        <button id="sendLocationButton">Send Location</button>
+    </div>
+
+    <script>
+        var locationObject={};
+let en = "";
+        let x1 = 28.5373343;
+        let y1 =77.365916;
+        var enrollmentNumber = document.getElementById("enrollmentNumber").value;
+        console.log("ppppp",enrollmentNumber);
+
+
+        function locationData(position){
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            var altitude = position.coords.altitude;
+            var accuracy = position.coords.accuracy;
+            var altitudeAccuracy = position.coords.altitudeAccuracy;
+            var heading = position.coords.heading;
+            var speed = position.coords.speed;
+            var timestamp = position.timestamp;
+
+            document.querySelector('#lat').innerHTML = latitude;
+            document.querySelector('#lon').innerHTML = longitude;
+            document.querySelector('#alt').innerHTML = altitude;
+
+       
+            
+            let x2 = latitude;
+         en = document.querySelector('#enrollmentNumber').value;
+            let y2 = longitude;
+            let distance = helper(x1, y1, x2, y2);
+            locationObject = {  
+                latitude: latitude,
+                longitude: longitude,
+                altitude: altitude,
+                accuracy: accuracy,
+                altitudeAccuracy: altitudeAccuracy,
+                heading: heading,
+                speed: speed,
+                timestamp: timestamp,
+                enrollment: enrollmentNumber,
+                dist: distance
+            };
+            console.log("kkkk", enrollmentNumber);
+        }
+
+        function error() {
+            alert("Sorry, no position available.");
+        }
+
+        const options = {
+            enableHighAccuracy: true,
+            maximumAge: 30000,
+            timeout: 27000,
+        };
+        function helper(lat1, lon1, lat2, lon2) {
+    const R = 6371; 
+ 
+    const lat1Rad = toRadians(lat1);
+    const lon1Rad = toRadians(lon1);
+    const lat2Rad = toRadians(lat2);
+    const lon2Rad = toRadians(lon2);
+    
+
+    const distanceKm = Math.acos(
+        Math.sin(lat1Rad) * Math.sin(lat2Rad) +
+        Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(lon2Rad - lon1Rad)
+    ) * R;
+    
+
+    const distanceMeters = distanceKm * 1000;
+    
+    return distanceMeters;
+}
+
+
+function toRadians(degrees) {
+    return degrees * (Math.PI / 180);
+}
+        const watchID = navigator.geolocation.watchPosition(locationData, error, options);
+
+
+document.getElementById('sendLocationButton').addEventListener('click', async function (){
+    enrollmentNumber = document.getElementById("enrollmentNumber").value;
+    console.log("Enrollment number is nitin",enrollmentNumber);
+    locationObject.enrollment=enrollmentNumber;
+    console.log("ppppp",enrollmentNumber);
+    console.log(locationObject.enrollment.toString());
+    console.log(locationObject.dist);
+    
+    if (locationObject.enrollment.toString().length== 10 && locationObject.dist <= 100000) {
+        
+        console.log("inside the onclick function");
+        console.log(locationObject.dist);
+        console.log(locationObject.enrollment);
+        console.log("heyyyyyyyyy");
+        let validity = await startCameraProcessing();
+        console.log("getting validity from camera function ", validity);
+        console.log("The enroll and dist from location object outside ");
+        console.log(locationObject.enrollment);
+        console.log(locationObject.dist);
+        if (validity == true&&(locationObject.enrollment.toString().length== 10)) {
+            console.log("The enroll and dist from location object inside if when validity is true ")
+            console.log(locationObject.enrollment)
+            console.log(locationObject.dist);
+            sendLocationToServer(locationObject);
+            alert("Attendence Marked Successfully");
+        } else {
+            alert("Absent ");
+            console.log("inside the else");
+        }
+    }
+});
+
+async function startCameraProcessing() {
+    let t = 0;
+    console.log("camera is here");
+    try {
+        const response = await fetch('/cameras', { method: 'GET' });
+        const data = await response.text();
+        console.log('aake mila: ', typeof (data));
+        const jsonData = JSON.parse(data);
+        console.log((jsonData.face_name[0]));
+        if (jsonData.face_name[0] == en) {
+            t = 1;
+        }
+        if (t == 1) {
+            console.log("returning true by camera function");
+            return true;
+        } else {
+            console.log("returning false by camera function");
+            return false;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        return false; 
+    }
+}
+
+function sendLocationToServer(locationObject) {
+    fetch('http://localhost:3000/home/teacher', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(locationObject),
+    })
+        .then(response => response.json())
+        .then(data => console.log('Server response:', data))
+        .catch(error => console.error('Error:', error));
+}
+
+
+
+
+
+    </script>
+</body>
+</html>
