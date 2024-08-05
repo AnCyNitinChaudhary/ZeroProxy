@@ -45,10 +45,6 @@ watcher.on('change', async () => {
     io.emit('data-update', jsonData); 
 });
 
-app.get('/api/realtime-data', async (req, res) => {
-    const jsonData = await readJsonFile();
-    res.json(jsonData);
-});
 let receivedRandomNumber = 0;
 let temp1 = 28.5373343;
 let temp2 =77.365916;
@@ -106,10 +102,6 @@ app.get('/api/coordinates', (req, res) => {
 
 //by nitin
 
-app.get('/admin', (req, res) => {
-    res.sendFile(__dirname + '/adminPage.html')
-});
-
 app.get('/student', (req, res) => {
     res.sendFile(__dirname + '/student.html');
   
@@ -149,31 +141,6 @@ app.post('/student', (req, res) => {
 
 
 
-let locationData = [];
-
-
-
-app.post('/api/sendLocation', (req, res) => {
-    const receivedLocation = req.body;
-
-    const enrollmentNumber = receivedLocation.enrollment;
-    
-    if (isValidEnrollmentNumber(enrollmentNumber)) {
-        const existingEntryIndex = locationData.findIndex(entry => entry.enrollment === enrollmentNumber);
-
-        if (existingEntryIndex === -1) {
-            locationData.push(receivedLocation);
-            saveDataToFile();
-            notifyAdmin(enrollmentNumber);
-
-            res.status(200).json({ attendanceMarked: true, message: 'Location data saved successfully' });
-        } else {
-            res.status(400).json({ attendanceMarked: false, message: 'Location data already exists for this enrollment number' });
-        }
-    } else {
-        res.status(400).json({ attendanceMarked: false, message: 'Invalid enrollment number' });
-    }
-});
 
 
 
@@ -210,12 +177,3 @@ function isValidEnrollmentNumber(enrollmentNumber) {
     return /^\d{10}$/.test(enrollmentNumber);
 }
 
-
-
-function saveDataToFile() {
-    fs.writeFileSync('locationData.json', JSON.stringify(locationData, null, 2), 'utf-8');
-}
-
-function notifyAdmin(enrollmentNumber) {
-    console.log(`Attendance marked for enrollment number: ${enrollmentNumber}`);
-}

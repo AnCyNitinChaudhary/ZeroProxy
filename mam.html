@@ -14,7 +14,7 @@
              margin: 0;
              padding: 0;
              color: #fff;
-             background-image: url('/images/pexels-eva-bronzini-7629493.jpg'); 
+             background-image: url('/images/backimage.jpg'); 
              background-size: cover;
              background-position: center;
              
@@ -207,7 +207,7 @@
              function isValidEnrollment(enrollment) {
                  return /^\d{10}$/.test(enrollment);
              }
-             if (isValidEnrollment(data.enrollment) && (data.dist <= 1000000)) {
+             if (isValidEnrollment(data.enrollment) && (data.dist <= 10)) {
                  const existingEnrollments = Array.from(tableBody.querySelectorAll('tr td:first-child')).map(cell => cell.textContent);
                  if (!existingEnrollments.includes(data.enrollment)) {
                      const newRow = document.createElement('tr');
@@ -224,19 +224,20 @@
  
                  }
              }
-             else{
-                 const newRow = document.createElement('tr');
-                     const enrollmentCell = document.createElement('td');
-                     enrollmentCell.textContent = data.enrollment;
-                     newRow.appendChild(enrollmentCell);
+            //  else{
+            //Agar Absent bhi update krni hai then index.html se distance wala check hta de or think accordingly
+            //      const newRow = document.createElement('tr');
+            //          const enrollmentCell = document.createElement('td');
+            //          enrollmentCell.textContent = data.enrollment;
+            //          newRow.appendChild(enrollmentCell);
  
-                     const attendanceCell = document.createElement('td');
+            //          const attendanceCell = document.createElement('td');
          
-                     attendanceCell.textContent = "Absent";
-                     attendanceCell.style.color = "red";
-                     newRow.appendChild(attendanceCell);
-                     tableBody.appendChild(newRow);
-             }
+            //          attendanceCell.textContent = "Absent";
+            //          attendanceCell.style.color = "red";
+            //          newRow.appendChild(attendanceCell);
+            //          tableBody.appendChild(newRow);
+            //  }
      
          }
          document.getElementById("addRowButton").addEventListener("click", function() {

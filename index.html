@@ -76,7 +76,7 @@
         </div>
         <button id="sendLocationButton">Send Location</button>
     </div>
-    <h1>Camera Capture</h1>
+    <h1>Camera Capture After Sending Location</h1>
     <video id="video" width="640" height="480" autoplay></video>
     <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
     <div class="button-container">
@@ -187,7 +187,7 @@ function toRadians(degrees) {
             en = document.querySelector('#enrollmentNumber').value;
     locationObject.enrollment = en;
     
-    if (locationObject.enrollment.toString().length == 10 && locationObject.dist <= 100000) {
+    if (locationObject.enrollment.toString().length == 10 && locationObject.dist <= 10) {
         console.log("inside the onclick function");
         console.log(locationObject.dist);
         console.log(locationObject.enrollment);
@@ -204,9 +204,8 @@ function toRadians(degrees) {
             console.log(locationObject.enrollment);
             console.log(locationObject.dist);
             await sendLocationToServer(locationObject);
-            // alert("Attendance Marked Successfully");
         } else {
-            alert("Absent ");
+            alert("Please try again, Validation failed ");
             console.log("inside the else");
         }
     }
@@ -296,30 +295,7 @@ async function startCameraProcessing() {
 }
 
 
-// async function startCameraProcessing() {
-//     let t = 0;
-//     console.log("camera is here");
-//     try {
-//         const response = await fetch('/cameras', { method: 'GET' });
-//         const data = await response.text();
-//         console.log('aake mila: ', typeof (data));
-//         const jsonData = JSON.parse(data);
-//         console.log((jsonData.face_name[0]));
-//         if (jsonData.face_name[0] == en) {
-//             t = 1;
-//         }
-//         if (t == 1) {
-//             console.log("returning true by camera function");
-//             return true;
-//         } else {
-//             console.log("returning false by camera function");
-//             return false;
-//         }
-//     } catch (error) {
-//         console.error('Error:', error);
-//         return false; 
-//     }
-// }
+
 async function sendLocationToServer(locationObject) {
     console.log("INSIDE THE SEND LOCATION FUNCTION")
     try {
