@@ -145,7 +145,7 @@
      <div class="container">
          <h1 class="anta-regular">Teacher's Portal</h1>
          <div class="t">
-         <button id="sendLocationButton">Generate Random Number</button>
+         <button id="generateRandonNumber">Generate Random Number</button>
          <button id="addRowButton">Mark Manually</button>
          
 
@@ -170,7 +170,28 @@
      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
      <script>
          const socket = io();
- 
+         let x1 = 28.5373343;
+         let y1 =77.365916;
+         const options = {
+            enableHighAccuracy: true,
+            maximumAge: 30000,
+            timeout: 27000,
+        };
+        function error(err) {
+            console.error(`Geolocation error (${err.code}): ${err.message}`);
+            alert("Sorry, we couldn't retrieve your location. Please ensure location services are enabled and try again.");
+        }
+        function locationData(position){
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            var altitude = position.coords.altitude;
+            x1=latitude;
+            y1=longitude;
+            console.log("TEACHER COORDINATES")
+            console.log(x1,y1);
+        }
+         const watchID = navigator.geolocation.watchPosition(locationData, error, options);
+         
          socket.on('connect', () => {
              console.log('Connected to server');
          });
@@ -272,13 +293,15 @@ function saveTextToTable(rowIndex, cellIndex, text) {
 }
 
  
-         function sendRandomNumberToBackend(randomNumber) {
-             fetch('/api/random', {
+        async function sendRandomNumberAndCoordinatesToBackend(randomNumber) {
+            console.log("aryan debugging")
+            console.log({randomNumber,x1,y1})
+             await fetch('/api/random', {
                  method: 'POST',
                  headers: {
                      'Content-Type': 'application/json',
                  },
-                 body: JSON.stringify({ randomNumber }),
+                 body: JSON.stringify({ randomNum:randomNumber , x:x1 ,y:y1 }),
              })
              .then(response => {
                  if (!response.ok) {
@@ -294,15 +317,16 @@ function saveTextToTable(rowIndex, cellIndex, text) {
              });
          }
  
-         document.getElementById('sendLocationButton').addEventListener('click', function () {
-             generateAndSendRandomNumber();
+         document.getElementById('generateRandonNumber').addEventListener('click', function () {
+            generateAndSendRandomNumberAndTeacherLocation();
          });
  
-         function generateAndSendRandomNumber() {
+        async function generateAndSendRandomNumberAndTeacherLocation() {
+            console.log("random number ka locha")
      const randomNumber = Math.floor(Math.random() * 900) + 100; // Generates a random number between 100 and 999
      document.getElementById('random-number').innerText = `Random Number: ${randomNumber}`;
      console.log(randomNumber);
-     sendRandomNumberToBackend(randomNumber);
+     await sendRandomNumberAndCoordinatesToBackend(randomNumber);
  }
      </script>
  </body>

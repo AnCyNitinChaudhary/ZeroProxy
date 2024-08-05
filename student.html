@@ -93,10 +93,39 @@
 <body>
     <h3>Student Home Page</h3>
     
-    <form action="/student" method="post">
+    <form id="classCodeForm" action="/student" method="post">
         <label for="code">Enter Class Code:</label>
         <input type="text" id="code" name="code" required placeholder="Class Code">
         <button type="submit">Submit</button>
     </form>
+    <script>
+        document.getElementById('classCodeForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(this);
+            const code = formData.get('code');
+
+            fetch('/student', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/api/coordinates'; // Redirect if the code matches
+                } else {
+                    return response.json().then(data => {
+                        throw new Error(data.error);
+                    });
+                }
+            })
+            .catch(error => {
+                alert(error.message); // Show alert if the code doesn't match
+                window.location.href = '/'; // Redirect back to home
+            });
+        });
+    </script>
 </body>
 </html>

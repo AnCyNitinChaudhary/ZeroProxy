@@ -9,6 +9,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            flex-direction: column;
             background-color: #2c3e50;
             color: #fff;
             display: flex;
@@ -51,6 +52,12 @@
             border-radius: 4px;
             transition: background-color 0.3s ease;
         }
+        .button-container{
+            display: flex;
+            justify-content: center;
+            gap: 10rem;
+            width: 100%;
+        }
         button:hover {
             background-color: #2980b9;
         }
@@ -72,19 +79,37 @@
     <h1>Camera Capture</h1>
     <video id="video" width="640" height="480" autoplay></video>
     <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+    <div class="button-container">
     <button id="snap">Capture</button>
-    <button id="retry">Retry</button>
+    <button id="retry">Enter Class code again</button>
     <button id="exitapp">Exit App</button>
+    </div>
     <script>
         var locationObject={};
 let en = 0;
         let x1 = 28.5373343;
         let y1 =77.365916;
-        var enrollmentNumber = document.getElementById("enrollmentNumber").value;
-        console.log("ppppp",enrollmentNumber);
+        async function fetchCoordinatesFromServe() {
+            console.log("inside the fetchcoordinates from the server")
+            try {
+                const response = await fetch('/api/randomcoordinates');
+                // console.log("this is responce by aryan",response.json())
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                // Update variables with the values from the server
+                x1 = data.temp1;
+                y1 = data.temp2;
+                console.log('Updated x1:', x1);
+                console.log('Updated x2:', y1);
+            } catch (error) {
+                console.error('Error fetching coordinates:', error);
+            }
+        }
 
-
-        function locationData(position){
+        // Call the function to fetch coordinates when the page loads
+        async function locationData(position){
             var latitude = position.coords.latitude;
             var longitude = position.coords.longitude;
             var altitude = position.coords.altitude;
@@ -98,12 +123,15 @@ let en = 0;
             document.querySelector('#lon').innerHTML = longitude;
             document.querySelector('#alt').innerHTML = altitude;
 
-       
-            
+            console.log("CALLING THIS FUNCTION BY INDEX.HTMML")
+            await fetchCoordinatesFromServe();
             let x2 = latitude;
-         en = document.querySelector('#enrollmentNumber').value;
             let y2 = longitude;
             let distance = helper(x1, y1, x2, y2);
+            console.log("the coordinates by watchguard API");
+            console.log(x1,y1,x2,y2);
+            console.log("the distance by watchguard API");
+            console.log(distance)
             locationObject = {  
                 latitude: latitude,
                 longitude: longitude,
@@ -113,10 +141,9 @@ let en = 0;
                 heading: heading,
                 speed: speed,
                 timestamp: timestamp,
-                enrollment: enrollmentNumber,
+                enrollment: en,
                 dist: distance
             };
-            console.log("kkkk", enrollmentNumber);
         }
 
         function error() {
@@ -156,13 +183,9 @@ function toRadians(degrees) {
 
 
         document.getElementById('sendLocationButton').addEventListener('click', async function (){
+
             en = document.querySelector('#enrollmentNumber').value;
-    const enrollmentNumber = document.getElementById("enrollmentNumber").value;
-    console.log("Enrollment number is nitin", enrollmentNumber);
-    locationObject.enrollment = enrollmentNumber;
-    console.log("ppppp", enrollmentNumber);
-    console.log(locationObject.enrollment.toString());
-    console.log(locationObject.dist);
+    locationObject.enrollment = en;
     
     if (locationObject.enrollment.toString().length == 10 && locationObject.dist <= 100000) {
         console.log("inside the onclick function");
@@ -180,8 +203,8 @@ function toRadians(degrees) {
             console.log("The enroll and dist from location object inside if when validity is true ");
             console.log(locationObject.enrollment);
             console.log(locationObject.dist);
-            sendLocationToServer(locationObject);
-            alert("Attendance Marked Successfully");
+            await sendLocationToServer(locationObject);
+            // alert("Attendance Marked Successfully");
         } else {
             alert("Absent ");
             console.log("inside the else");
@@ -297,18 +320,37 @@ async function startCameraProcessing() {
 //         return false; 
 //     }
 // }
+async function sendLocationToServer(locationObject) {
+    console.log("INSIDE THE SEND LOCATION FUNCTION")
+    try {
+        // Send the POST request to the server
+        const response = await fetch('/teacher', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(locationObject),
+        });
 
-function sendLocationToServer(locationObject) {
-    fetch('http://localhost:3000/teacher', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(locationObject),
-    })
-        .then(response => response.json())
-        .then(data => console.log('Server response:', data))
-        .catch(error => console.error('Error:', error));
+        // Check if the response is OK (status code 200)
+        if (!(response.status===200)) {
+            // Throw an error if the response status is not OK
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // Show an alert message to the user
+        alert("Attendance Marked Successfully");
+        
+        // Redirect to the homepage
+        window.location.href = "/";
+        
+    } catch (error) {
+        // Log any errors that occurred during the fetch or response parsing
+        console.error('Error:', error);
+        
+        // Optionally, you could display an error message to the user
+        alert("There was an error marking attendance. Please try again.");
+    }
 }
 
 document.getElementById("retry").addEventListener("click", function() {
