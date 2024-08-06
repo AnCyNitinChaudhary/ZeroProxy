@@ -10,7 +10,7 @@
      <title>Teacher's Portal</title>
      <style>
          body {
-             font-family: Arial, sans-serif;
+             font-family: Aral, sans-serif;
              margin: 0;
              padding: 0;
              color: #fff;
@@ -196,85 +196,109 @@
              console.log('Connected to server');
          });
  
+
+//Below is adding MongoDB
+
+
+
          socket.on('dataUpdate', (data) => {
              console.log(data);
              displayData(data);
          });
- 
-         function displayData(data) {
-             const tableBody = document.getElementById('table-body');
- 
-             function isValidEnrollment(enrollment) {
-                 return /^\d{10}$/.test(enrollment);
-             }
-             if (isValidEnrollment(data.enrollment) && (data.dist <= 10)) {
-                 const existingEnrollments = Array.from(tableBody.querySelectorAll('tr td:first-child')).map(cell => cell.textContent);
-                 if (!existingEnrollments.includes(data.enrollment)) {
-                     const newRow = document.createElement('tr');
-                     const enrollmentCell = document.createElement('td');
-                     enrollmentCell.textContent = data.enrollment;
-                     newRow.appendChild(enrollmentCell);
- 
-                     const attendanceCell = document.createElement('td');
-         
-                     attendanceCell.textContent = "Present";
-                     attendanceCell.style.color = "green";
-                     newRow.appendChild(attendanceCell);
-                     tableBody.appendChild(newRow);
- 
-                 }
-             }
-            //  else{
-            //Agar Absent bhi update krni hai then index.html se distance wala check hta de or think accordingly
-            //      const newRow = document.createElement('tr');
-            //          const enrollmentCell = document.createElement('td');
-            //          enrollmentCell.textContent = data.enrollment;
-            //          newRow.appendChild(enrollmentCell);
- 
-            //          const attendanceCell = document.createElement('td');
-         
-            //          attendanceCell.textContent = "Absent";
-            //          attendanceCell.style.color = "red";
-            //          newRow.appendChild(attendanceCell);
-            //          tableBody.appendChild(newRow);
-            //  }
-     
-         }
-         document.getElementById("addRowButton").addEventListener("click", function() {
-    var tableBody = document.getElementById("table-body");
-    var newRow = document.createElement("tr");
+         async function sendAttendanceToServer(enrollment, attendance) {
+            console.log("update attendence called")
+            const currentDate = new Date();
 
-    var enrollmentCell = document.createElement("td");
-    var enrollmentInput = document.createElement("input");
-    enrollmentInput.type = "text"; 
-    enrollmentInput.classList.add("glass-effect");
-    enrollmentCell.appendChild(enrollmentInput);
-    newRow.appendChild(enrollmentCell);
+            const data = {
+                randomNumber,
+                enrollment,
+                currentDate,
+                attendance
+            };
 
-    var attendanceCell = document.createElement("td");
-    var attendanceInput = document.createElement("input");
-    attendanceInput.type = "checkbox";
-    attendanceCell.appendChild(attendanceInput);
-    newRow.appendChild(attendanceCell);
+            try {
+                const response = await fetch('/api/attendance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
 
-    tableBody.appendChild(newRow);
-    enrollmentInput.addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-        var text = enrollmentInput.value;
-        var cellIndex = Array.from(newRow.children).indexOf(enrollmentCell);
-        var rowIndex = Array.from(tableBody.children).indexOf(newRow);
-        saveTextToTable(rowIndex, cellIndex, text);
-        enrollmentCell.removeChild(enrollmentInput);
-        attendanceInput.checked = true;
-    } else {
-        
-        var regex = /^[0-9]$/; 
-        if (!regex.test(event.key)) {
-            event.preventDefault(); 
+                if (!response.ok) {
+                    throw new Error('Failed to send attendance data to the server');
+                }
+
+                const responseData = await response.json();
+                console.log('Server response:', responseData);
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
-    }
-});
-});
+         function displayData(data) {
+            const tableBody = document.getElementById('table-body');
+
+            function isValidEnrollment(enrollment) {
+                return /^\d{10}$/.test(enrollment);
+            }
+
+            if (isValidEnrollment(data.enrollment) && (data.dist <= 10)) {
+                const existingEnrollments = Array.from(tableBody.querySelectorAll('tr td:first-child')).map(cell => cell.textContent);
+                if (!existingEnrollments.includes(data.enrollment)) {
+                    const newRow = document.createElement('tr');
+                    const enrollmentCell = document.createElement('td');
+                    enrollmentCell.textContent = data.enrollment;
+                    newRow.appendChild(enrollmentCell);
+
+                    const attendanceCell = document.createElement('td');
+                    attendanceCell.textContent = "Present";
+                    attendanceCell.style.color = "green";
+                    newRow.appendChild(attendanceCell);
+                    tableBody.appendChild(newRow);
+
+                    // Send attendance data to the server
+                    sendAttendanceToServer(data.enrollment, 'Present');
+                }
+            }
+        }
+ document.getElementById("addRowButton").addEventListener("click", function() {
+            const tableBody = document.getElementById("table-body");
+            const newRow = document.createElement("tr");
+
+            const enrollmentCell = document.createElement("td");
+            const enrollmentInput = document.createElement("input");
+            enrollmentInput.type = "text";
+            enrollmentInput.classList.add("glass-effect");
+            enrollmentCell.appendChild(enrollmentInput);
+            newRow.appendChild(enrollmentCell);
+
+            const attendanceCell = document.createElement("td");
+            const attendanceInput = document.createElement("input");
+            attendanceInput.type = "checkbox";
+            attendanceCell.appendChild(attendanceInput);
+            newRow.appendChild(attendanceCell);
+
+            tableBody.appendChild(newRow);
+
+            enrollmentInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    const text = enrollmentInput.value;
+                    const cellIndex = Array.from(newRow.children).indexOf(enrollmentCell);
+                    const rowIndex = Array.from(tableBody.children).indexOf(newRow);
+                    saveTextToTable(rowIndex, cellIndex, text);
+                    enrollmentCell.removeChild(enrollmentInput);
+                    attendanceInput.checked = true;
+
+                    // Send attendance data to the server
+                    sendAttendanceToServer(text, 'Present');
+                } else {
+                    const regex = /^[0-9]$/;
+                    if (!regex.test(event.key)) {
+                        event.preventDefault();
+                    }
+                }
+            });
+        });
 var dateTimeElement = document.getElementById("currentDateTime");
 function updateDateTime() {
     var currentDate = new Date();
@@ -293,6 +317,14 @@ function saveTextToTable(rowIndex, cellIndex, text) {
     table.rows[rowIndex + 1].cells[cellIndex].textContent = text;
 }
 
+
+
+
+
+
+
+
+//above is adding MongoDB 
  
         async function sendRandomNumberAndCoordinatesToBackend(randomNumber) {
             console.log("aryan debugging")
@@ -321,12 +353,11 @@ function saveTextToTable(rowIndex, cellIndex, text) {
          document.getElementById('generateRandonNumber').addEventListener('click', function () {
             generateAndSendRandomNumberAndTeacherLocation();
          });
- 
+let randomNumber=0;
         async function generateAndSendRandomNumberAndTeacherLocation() {
             console.log("random number ka locha")
-     const randomNumber = Math.floor(Math.random() * 900) + 100; // Generates a random number between 100 and 999
+         randomNumber = Math.floor(Math.random() * 900) + 100; // Generates a random number between 100 and 999
      document.getElementById('random-number').innerText = `Random Number: ${randomNumber}`;
-     console.log(randomNumber);
      await sendRandomNumberAndCoordinatesToBackend(randomNumber);
  }
      </script>

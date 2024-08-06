@@ -16,6 +16,64 @@ const http = require('http');
 const socketIo = require('socket.io');
 const FormData = require('form-data');
 app.use(express.json());
+const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
+app.use(bodyParser.json());
+
+
+const MONGODB_URI = process.env.MONGODB_URI ;
+
+// Middleware to parse JSON
+
+// Connect to MongoDB using Mongoose
+mongoose.connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+    .then(() => {
+        console.log('Connected to MongoDB');
+
+        // Start the Express server after the database connection is established
+    })
+    .catch((err) => {
+        console.error('Error connecting to MongoDB', err);
+        process.exit(1); // Exit process with failure
+    });
+
+// Define a schema for attendance
+const attendanceSchema = new mongoose.Schema({
+    randomNumber: Number,
+    enrollment: String,
+    dateTime: Date,
+    attendance: String,
+}, { timestamps: true });
+
+// Create a model for attendance
+const Attendance = mongoose.model('Attendance', attendanceSchema);
+
+// Endpoint to receive attendance data
+app.post('/api/attendance', async (req, res) => {
+    const { randomNumber, enrollment, dateTime, attendance } = req.body;
+
+    const newAttendance = new Attendance({
+        randomNumber,
+        enrollment,
+        dateTime,
+        attendance,
+    });
+
+    try {
+        const result = await newAttendance.save();
+        res.json({ message: 'Attendance saved successfully', id: result._id });
+    } catch (error) {
+        console.error('Error saving attendance', error);
+        res.status(500).json({ message: 'Error saving attendance' });
+    }
+});
+
+
+
+
 
 
 app.get('/', (req, res)=>{
@@ -23,6 +81,7 @@ app.get('/', (req, res)=>{
 })
 
 app.use(express.static(__dirname+'/public'));
+
 
 
 
@@ -50,7 +109,6 @@ let temp1 = 28.5373343;
 let temp2 =77.365916;
 
 
-app.use(bodyParser.json());
 app.post('/api/random', (req, res) => {
     // receivedRandomNumber = req.body.randomNumber;
     console.log("in server for teacher location")
@@ -108,11 +166,18 @@ app.get('/student', (req, res) => {
 });
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use(express.static('public'));
+
+
+
+//adding code for MongoDB
+
+// const uri = 'mongodb+srv://geoapp:TlWtPJvHN8vxT7u0@cluster0.ctzrpva.mongodb.net/Attendence?retryWrites=true&w=majority&appName=Cluster0';
+
+
 app.post('/teacher', (req, res) => {
     const data = req.body;
     
