@@ -26,10 +26,7 @@ const MONGODB_URI = process.env.MONGODB_URI ;
 // Middleware to parse JSON
 
 // Connect to MongoDB using Mongoose
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(MONGODB_URI)
     .then(() => {
         console.log('Connected to MongoDB');
 
