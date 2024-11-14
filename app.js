@@ -220,7 +220,7 @@ app.post('/cameras', upload.single('image'), async (req, res) => {
       const form = new FormData();
       form.append('image', fs.createReadStream(filePath));
   
-      const response = await axios.post('https://zeroproxybackend.onrender.com', form, {
+      const response = await axios.post('https://zeroproxybackend.onrender.com/validate', form, {
         headers: form.getHeaders(),
       });
   
